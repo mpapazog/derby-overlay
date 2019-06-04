@@ -1,0 +1,75 @@
+{
+    "readMe": {
+        "0":    "This is a JSON-format configuration file.",
+        "1":    "You can edit existing values to modify overlay behaviour. Do not add or remove any attributes.",
+        "2":    "Be careful when editing. Do not add unneeded commas, double quotes or brackets.",
+        "3":    "Example configuration here: (TODO: INSERT GITHUB LINK)",
+        
+        "4":    "HTML Colour name cheat sheet: https://www.w3schools.com/colors/colors_names.asp"
+    },
+    
+    "scoreboard": {
+        "serverIp"                  : "127.0.0.1",
+        "serverPort"                : "8000"
+    },
+        
+    "team1": {
+        "getTeamNameFromScoreboard" : true,
+        "defaultName"               : "Thunder",
+        "defaultColour"             : "black",
+        "defaultStarColour"         : "white",
+        "defaultLogo"               : "/img/example_team_logo_1.png"
+    },
+        
+    "team2": {
+        "getTeamNameFromScoreboard" : true,
+        "defaultName"               : "Lightning",
+        "defaultColour"             : "white",
+        "defaultStarColour"         : "black",
+        "defaultLogo"               : "/img/example_team_logo_2.png"
+    },
+        
+    "teamShortNames": {
+        "Calgary Roller Derby" : {
+            "short":"CALGARY", 
+            "superShort":"CAL"
+        },
+        "Dock City Rollers" : {
+            "short":"DOCK CITY", 
+            "superShort":"DOC"
+        },
+        "Kallio Rolling Rainbow" : {
+            "short":"KALLIO", 
+            "superShort":"KRR"
+        },
+        "Middlesbrough Roller Derby" : {
+            "short":"MIDDLESBROUGH", 
+            "superShort":"MID"
+        },
+        "Tiger Bay Brawlers" : {
+            "short":"TIGER BAY", 
+            "superShort":"TIG"
+        }
+    },
+        
+    "teamColourMappings": {
+        "CALGARY":      {"teamColour":"black",          "starColour":"white",           "logoFilePath":"/img/calgary.png"},
+        "DOCK CITY":    {"teamColour":"white",          "starColour":"midnightblue",    "logoFilePath":"/img/dock_city.png"},
+        "KALLIO":       {"teamColour":"white",          "starColour":"black",           "logoFilePath":"/img/kallio.png"},
+        "MIDDLESBROUGH":{"teamColour":"lightsteelblue", "starColour":"black",           "logoFilePath":"/img/middlesbrough.png"},
+        "TIGER BAY":    {"teamColour":"darkorange",     "starColour":"black",           "logoFilePath":"/img/tiger_bay.png"}
+    },
+        
+    "overlaySettings": {
+        "shortTeamNameMaxLength"            : 15,
+        "superShortTeamNameMaxLength"       : 3,
+        "skaterNameNumberMaxLength"         : 23,
+        "showTeamLogos"                     : true,
+        "autoLoadTeamColoursBasedOnTeamName": true,
+        "doColourLogoBackgrounds"           : true,
+        "logoBackgroundDefaultColour"       : "white",
+        "gameHasHalftimeBanners"            : true,
+        "gameHasTimeoutSponsors"            : true,
+        "sponsorLogos"                      : ["/img/example_sponsor_1.png", "/img/example_sponsor_2.png", "/img/example_sponsor_3.png"]
+    }
+}
