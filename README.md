@@ -2,15 +2,16 @@
 
 This is an alternative streaming overlay for CRG 3.9.5. It is designed to run as independent as possible from the scoreboard computer, so that the NSOs do not have to do anything out of their regular routine, and you, as a streamer, have more control on how things are displayed in your broadcast and how to resolve possible issues.
 
-The overlay has been developed and tested with OBS as the streaming application, but it might work with other mixing software that supports browser windows, such as vMix. Limitations:
+The overlay has been developed and tested with OBS as the streaming application, but it might work with other mixing software that supports browser windows, such as vMix. Limitations and notes:
 * The overlay is only compatible with the CRG 3.9.5 release. It will not work correctly with the beta branch. Once a new stable release is out, the overlay may be adapted to support it
 * Your streamer much use a mixing resolution of 1920x1080 and the overlay must be defined as a browser element with resolution 1920x1080
 * It is highly recommended to use separate computers to host the CRG scoreboard application, the webserver that provides this overlay and your streaming application.
 * This overlay was developed and tested using the nginx webserver: http://nginx.org/
 * The overlay has only been tested with the DIN font. If you plan to use a different font, check your font size to avoid text overflow. This font is not included in Windows by default, and needs to be downloaded separately. The font will need to be installed on your streamer computer
+* If you stumble into bugs, let me know
 
 
-##Installation and startup:
+## Installation and startup:
 
 Steps to install the overlay on nginx:
 * Download nginx
@@ -44,7 +45,7 @@ Steps to install the overlay on nginx:
   * Run command:
       `nginx`
 
-##Troubleshooting:
+## Troubleshooting:
 
 The overlay does not load any team names or the period clock:
 There is probably an error in overlaySettings.json, such as an incorrect scoreboard IP or a JSON syntax error
