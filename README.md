@@ -19,14 +19,16 @@ Steps to install the overlay on nginx:
   ```location / {
       root   html;
       index  index.html index.htm;
-  }```
+  }
+  ```
 
   ... and replace it with the following:
 
   ```location / {
       root   html;
       autoindex on;
-  }```
+  }
+  ```
 
 * Copy the files in this repository to /html/ in the nginx folder
 * Edit overlaySettings.json:
