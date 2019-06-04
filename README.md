@@ -17,7 +17,8 @@ Steps to install the overlay on nginx:
 * Download nginx
 * Edit the file /conf/nginx.conf in the nginx folder
   * Find section in the file:
-  ```location / {
+  ```
+  location / {
       root   html;
       index  index.html index.htm;
   }
@@ -25,7 +26,8 @@ Steps to install the overlay on nginx:
 
   ... and replace it with the following:
 
-  ```location / {
+  ```
+  location / {
       root   html;
       autoindex on;
   }
