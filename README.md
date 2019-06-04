@@ -60,3 +60,10 @@ Your CRG scoreboard is most likely exhibiting a websocket deadlock bug that affe
 * Restart the CRG application
 * Reopen and verify if the deadlock is gone
 * If the deadlock issue still exhibits itself, repeat these steps, click random stuff in the SBO interface, etc, until it clears. This may take some time, depending on how unlucky you are.
+
+### Nginx won't start
+The port number you are trying to use for nginx might be occupied by some other service. You can modify the listen port in `nginx.conf`:
+
+```
+listen       8080;
+```
