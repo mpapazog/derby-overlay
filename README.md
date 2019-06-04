@@ -15,7 +15,7 @@ The overlay has been developed and tested with OBS as the streaming application,
 
 Steps to install the overlay on nginx:
 * Download nginx
-* Edit the file /conf/nginx.conf in the nginx folder
+* Edit the file `/conf/nginx.conf` in the nginx folder
   * Find the following section in the file:
   ```
   location / {
@@ -33,13 +33,13 @@ Steps to install the overlay on nginx:
   }
   ```
 
-* Copy the files in this repository to /html/ in the nginx folder
-* Edit overlaySettings.json:
+* Copy the files in this repository to `/html/` in the nginx folder
+* Edit `overlaySettings.json`:
   * The file uses JSON format, so be careful when editing it. Syntax errors will cause the overlay to fail to load
-  * Under scoreboard>serverIp and scoreboard>serverPort you will need to enter the ip_address:port of your scoreboard computer. Your streamer will use these to pull data from the websocket interface
-  * Under teamShortNames and teamColourMappings you can enter custom scoreboard team name translation rules. This helps you have control of how teams are displayed during a tournament with multiple games. Some examples have been provided in the smaple overlaySettings.json file
+  * Under `scoreboard>serverIp` and `scoreboard>serverPort` you will need to enter the ip_address:port of your scoreboard computer. Your streamer will use these to pull data from the websocket interface
+  * Under `teamShortNames` and `teamColourMappings` you can enter custom scoreboard team name translation rules. This helps you have control of how teams are displayed during a tournament with multiple games. Some examples have been provided in the smaple `overlaySettings.json` file
 
-* To change stylng elements of the overlay, edit overlayStyle.css
+* To change stylng elements of the overlay, edit `overlayStyle.css`
 
 * Start nginx:
   * Open a command line window
@@ -49,10 +49,10 @@ Steps to install the overlay on nginx:
 
 ## Troubleshooting:
 
-The overlay does not load any team names or the period clock:
-There is probably an error in overlaySettings.json, such as an incorrect scoreboard IP or a JSON syntax error
+### The overlay does not load any team names or the period clock
+There is probably an error in `overlaySettings.json`, such as an incorrect scoreboard IP or a JSON syntax error
 
-The overlay loads team names, but clocks are not running:
+### The overlay loads team names, but clocks are not running
 Your CRG scoreboard is most likely exhibiting a websocket deadlock bug that affects version 3.9.5. Steps to recover from this state:
 * Open the CRG SBO interface
 * Start a new game
