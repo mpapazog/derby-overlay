@@ -16,7 +16,7 @@ The overlay has been developed and tested with OBS as the streaming application,
 Steps to install the overlay on nginx:
 * Download nginx
 * Edit the file /conf/nginx.conf in the nginx folder
-  * Find section in the file:
+  * Find the following section in the file:
   ```
   location / {
       root   html;
