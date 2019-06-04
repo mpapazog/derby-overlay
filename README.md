@@ -34,10 +34,13 @@ Steps to install the overlay on nginx:
   ```
 
 * Copy the file/folder structure under `/html/` in this repository to `/html/` in the nginx folder
+
 * Edit `overlaySettings.json`:
   * The file uses JSON format, so be careful when editing it. Syntax errors will cause the overlay to fail to load
   * Under `scoreboard>serverIp` and `scoreboard>serverPort` you will need to enter the ip_address:port of your scoreboard computer. Your streamer will use these to pull data from the websocket interface
   * Under `teamShortNames` and `teamColourMappings` you can enter custom scoreboard team name translation rules. This helps you have control of how teams are displayed during a tournament with multiple games. Some examples have been provided in the smaple `overlaySettings.json` file
+  
+* To disable sponsor banners, set option `overlaySettings>gameHasTimeoutSponsors` in `overlaySettings.json` to `false`.
 
 * To change styling elements of the overlay, edit `overlayStyle.css`
 
