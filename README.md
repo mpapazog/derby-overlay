@@ -33,7 +33,7 @@ Steps to install the overlay on nginx:
   }
   ```
 
-* Copy the files in this repository to `/html/` in the nginx folder
+* Copy the file/folder structure under `/html/` in this repository to `/html/` in the nginx folder
 * Edit `overlaySettings.json`:
   * The file uses JSON format, so be careful when editing it. Syntax errors will cause the overlay to fail to load
   * Under `scoreboard>serverIp` and `scoreboard>serverPort` you will need to enter the ip_address:port of your scoreboard computer. Your streamer will use these to pull data from the websocket interface
