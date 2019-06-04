@@ -3,7 +3,7 @@
         "0":    "This is a JSON-format configuration file.",
         "1":    "You can edit existing values to modify overlay behaviour. Do not add or remove any attributes.",
         "2":    "Be careful when editing. Do not add unneeded commas, double quotes or brackets.",
-        "3":    "Example configuration here: (TODO: INSERT GITHUB LINK)",
+        "3":    "Example configuration here: https://github.com/mpapazog/derby-overlay/blob/master/html/overlaySettings.json",
         
         "4":    "HTML Colour name cheat sheet: https://www.w3schools.com/colors/colors_names.asp"
     },
