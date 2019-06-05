@@ -52,7 +52,7 @@ Steps to install the overlay on nginx:
 ## Troubleshooting:
 
 ### The overlay does not load any team names or the period clock
-There is probably an error in `overlaySettings.json`, such as an incorrect scoreboard IP or a JSON syntax error
+There may be an error in `overlaySettings.json`, such as an incorrect scoreboard IP or a JSON syntax error. Alternatively, you may be missing internet connectivity. The overlay needs to download jQuery from Google to load.
 
 ### The overlay loads team names, but clocks are not running
 Your CRG scoreboard is most likely exhibiting a websocket deadlock bug that affects version 3.9.5. Steps to recover from this state:
