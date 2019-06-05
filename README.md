@@ -2,7 +2,7 @@
 
 This is an alternative streaming overlay for CRG 3.9.5. It is designed to run as independent as possible from the scoreboard computer, so that the NSOs do not have to do anything out of their regular routine, and you, as a stream operator, have more control over how things are displayed in your broadcast and how to resolve possible issues without affecting the game.
 
-The overlay has been developed and tested with OBS as the streaming application, but it might work with other mixing software that supports browser windows, such as vMix, as well. Limitations and notes:
+The overlay has been developed and tested with OBS as the streaming application, but it might work with other mixing software that support browser windows, such as vMix, as well. Limitations and notes:
 * The overlay is only compatible with the CRG 3.9.5 release. It will not work correctly with the beta branch. Once a new stable release is out, the overlay may be adapted to support it
 * Your streamer must use a mixing resolution of 1920x1080 and the overlay must be defined as a browser element with resolution 1920x1080
 * It is highly recommended to use separate computers to host the CRG scoreboard application, the webserver that provides this overlay and your streaming application.
