@@ -41,7 +41,8 @@ Steps to install the overlay on nginx:
   * Under `teamShortNames` and `teamColourMappings` you can enter custom scoreboard team name translation rules. This helps you have control of how teams are displayed during a tournament with multiple games. Some examples have been provided in the sample `overlaySettings.json` file
   * To disable sponsor banners, set option `overlaySettings>gameHasTimeoutSponsors` to `false`.
 
-* To change styling elements of the overlay, edit `overlayStyle.css`
+* To change styling elements of the overlay, edit `overlayStyle.css`. Interface colours can be modified by editing the following classes:
+`.bgcolour-default`, `.font-colour-default`, `.font-colour-clockface`, `.bgcolour-clockface-gradient1`, `.bgcolour-clockface-gradient2`, `.colour-scheme-popup1` and `.colour-scheme-popup2`
 
 * Start nginx:
   * Open a command line window
