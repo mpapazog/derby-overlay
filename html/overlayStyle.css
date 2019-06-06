@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:700');
+
 /* MAIN OVERLAY CLASSES START HERE */
 
     .chroma-key {
@@ -5,8 +7,8 @@
     }
     
     .font_style {
-      font-family: "DIN", Sans-serif;
-      font-weight: 600;
+      font-family: "Roboto", Sans-serif;
+      font-weight: 700;
     }
         
     .bgcolour-default {
