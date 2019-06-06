@@ -83,6 +83,7 @@
                 "SignalGameReset"               : false,
                 "JamJustEnded"                  : false,
                 "ClearToShowJamPoints"          : false,
+                "ClearToShowJammerInfo"         : false,
                 "ShowingJamScore"               : false,
                 "Team1Name"                     : "",
                 "Team1NameShort"                : "",
@@ -498,6 +499,12 @@
                             case 'id': // this element appears when the websocket to scoreboard is first opened. Use as trigger to register
                                 score.isNotDead = true;
                                 score.ws.send(JSON.stringify({"action":"Register","paths":scoreboardInterestingPaths}));
+                                
+                                // prevents overlay from replaying period 1 last jam points if overlay is loaded after halftime break
+                                setTimeout(function(){  
+                                    gfxState["ClearToShowJamPoints"] = true;
+                                    gfxState["ClearToShowJammerInfo"] = true;
+                                }, 2000);
                                 break;
                                  
                         } // switch (index)
@@ -902,39 +909,41 @@
                     if (gfxState["Team"+i+"JammerInfoUpdated"] && state["JamClockRunning"]) {
                         gfxState["Team"+i+"JammerInfoUpdated"] = false;
                         
-                        var jammerTextDelay = 100; //msec
-                        
-                        if (state["Team"+i+"StarPass"]) {
-                            if (gfxState["Showingteam"+i+"InfoPopUp"]) {
-                                clearTimeout(gfxState["Team"+i+"JammerCloseTimer"]);
-                                gfxReplaceText ("team"+i+"InfoPopUpText", "STAR PASS");
-                            } else {
-                                // show star pass animation from scratch
-                                gfxPopupOpen ("team"+i+"InfoPopUp", "STAR PASS");
-                                gfxState["Showingteam"+i+"InfoPopUp"] = true;
-                            } 
-                            jammerTextDelay = 2000;
-                        }
-                        
-                        gfxState["Team"+i+"JammerTextTimer"] = setTimeout(function(){
-                            if (gfxState["Team"+i+"ActingJammerGotNameNumber"]) {
-                                var jammerNameNumber = state["Team"+i+"ActingJammerNumber"] + " " + state["Team"+i+"ActingJammerName"];
-                                if (jammerNameNumber.length > settings["overlaySettings"]["skaterNameNumberMaxLength"]) {
-                                    jammerNameNumber = jammerNameNumber.substr(0, settings["overlaySettings"]["skaterNameNumberMaxLength"]) + ".";
-                                }
-                                if (gfxState["Showingteam"+i+"InfoPopUp"]) {
-                                    gfxReplaceText ("team"+i+"InfoPopUpText", jammerNameNumber);
-                                } else if (state["JamClockRunning"]) {
-                                    gfxPopupOpen ("team"+i+"InfoPopUp", jammerNameNumber);
-                                    gfxState["Showingteam"+i+"InfoPopUp"] = true;
-                                }
+                        if(gfxState["ClearToShowJammerInfo"]){
+                            var jammerTextDelay = 100; //msec
                             
+                            if (state["Team"+i+"StarPass"]) {
+                                if (gfxState["Showingteam"+i+"InfoPopUp"]) {
+                                    clearTimeout(gfxState["Team"+i+"JammerCloseTimer"]);
+                                    gfxReplaceText ("team"+i+"InfoPopUpText", "STAR PASS");
+                                } else {
+                                    // show star pass animation from scratch
+                                    gfxPopupOpen ("team"+i+"InfoPopUp", "STAR PASS");
+                                    gfxState["Showingteam"+i+"InfoPopUp"] = true;
+                                } 
+                                jammerTextDelay = 2000;
                             }
-                        }, jammerTextDelay);
+                            
+                            gfxState["Team"+i+"JammerTextTimer"] = setTimeout(function(){
+                                if (gfxState["Team"+i+"ActingJammerGotNameNumber"]) {
+                                    var jammerNameNumber = state["Team"+i+"ActingJammerNumber"] + " " + state["Team"+i+"ActingJammerName"];
+                                    if (jammerNameNumber.length > settings["overlaySettings"]["skaterNameNumberMaxLength"]) {
+                                        jammerNameNumber = jammerNameNumber.substr(0, settings["overlaySettings"]["skaterNameNumberMaxLength"]) + ".";
+                                    }
+                                    if (gfxState["Showingteam"+i+"InfoPopUp"]) {
+                                        gfxReplaceText ("team"+i+"InfoPopUpText", jammerNameNumber);
+                                    } else if (state["JamClockRunning"]) {
+                                        gfxPopupOpen ("team"+i+"InfoPopUp", jammerNameNumber);
+                                        gfxState["Showingteam"+i+"InfoPopUp"] = true;
+                                    }
                                 
-                        gfxState["Team"+i+"JammerCloseTimer"] = setTimeout(function(){  
-                            gfxState["SignalCloseTeam"+i+"Popup"] = true;
-                        }, 14000);
+                                }
+                            }, jammerTextDelay);
+                                    
+                            gfxState["Team"+i+"JammerCloseTimer"] = setTimeout(function(){  
+                                gfxState["SignalCloseTeam"+i+"Popup"] = true;
+                            }, 14000);
+                        }
                     }
                 } // else
             } // for
@@ -973,12 +982,7 @@
                 
                 // immediately rebuild connection to scoreboard on page load
                 score.initialize();
-                
-                // prevents overlay from replaying period 1 last jam points if overlay is loaded after halftime break
-                setTimeout(function(){  
-                    gfxState["ClearToShowJamPoints"] = true;
-                }, 10000);
-                
+                                
             });
             
         });
