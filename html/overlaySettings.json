@@ -63,7 +63,7 @@
     "overlaySettings": {
         "shortTeamNameMaxLength"            : 15,
         "superShortTeamNameMaxLength"       : 3,
-        "skaterNameNumberMaxLength"         : 23,
+        "skaterNameNumberMaxLength"         : 20,
         "showTeamLogos"                     : true,
         "autoLoadTeamColoursBasedOnTeamName": true,
         "doColourLogoBackgrounds"           : true,
