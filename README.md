@@ -7,7 +7,7 @@ The overlay has been developed and tested with OBS as the streaming application,
 * Your streamer must use a mixing resolution of 1920x1080 and the overlay must be defined as a browser element with resolution 1920x1080
 * It is highly recommended to use separate computers to host the CRG scoreboard application, the webserver that provides this overlay and your streaming application.
 * This overlay was developed and tested using the nginx webserver: http://nginx.org/
-* The overlay has only been tested with the DIN font. If you plan to use a different font, check your font size to avoid text overflow. This font is not included in Windows by default, and needs to be downloaded separately. The font will need to be installed on your streamer computer
+* Update: The overlay now uses the Roboto font. You can get it from Google: https://fonts.google.com/specimen/Roboto
 * If you stumble into bugs, let me know
 
 
