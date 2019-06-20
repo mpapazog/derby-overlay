@@ -633,58 +633,60 @@
         }
         
         function gfxSetTeamNameColourLogo(team, name) {
-            // Fetch name
-            if (settings["team"+team]["getTeamNameFromScoreboard"]){
-                if (name in settings["teamShortNames"]) {
-                    gfxState["Team"+team+"Name"]       = settings["teamShortNames"][name]["short"].substr(0,settings["overlaySettings"]["shortTeamNameMaxLength"]).toUpperCase();
-                    gfxState["Team"+team+"NameShort"]  = settings["teamShortNames"][name]["superShort"].substr(0,settings["overlaySettings"]["superShortTeamNameMaxLength"]).toUpperCase();
-                } else {
-                    gfxState["Team"+team+"Name"]       = name.substr(0,settings["overlaySettings"]["shortTeamNameMaxLength"]).toUpperCase();
-                    gfxState["Team"+team+"NameShort"]  = name.substr(0,settings["overlaySettings"]["superShortTeamNameMaxLength"]).toUpperCase();
-                }
-            } else {
-                gfxState["Team"+team+"Name"]       = settings["team"+team]["defaultName"].toUpperCase();
-                gfxState["Team"+team+"NameShort"]  = settings["team"+team]["defaultName"].substr(0,5).toUpperCase();
-            }
-            $("#team"+team+"Name").html(gfxState["Team"+team+"NameShort"]);
-                        
-            // Set colour and logo
-            if (settings["overlaySettings"]["autoLoadTeamColoursBasedOnTeamName"] && gfxState["Team"+team+"Name"] in settings["teamColourMappings"]) {
-                $("#team"+team+"Colour").css("background-color", settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["teamColour"]);
-                $("#team"+team+"Lead")  .css("color", settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["starColour"]);
-                if(settings["overlaySettings"]["doColourLogoBackgrounds"]) {
-                    $("#team"+team+"Logo").css("background-color", settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["teamColour"]);
-                }
-                
-                if (settings["overlaySettings"]["showTeamLogos"]) {
-                    if ("logoFilePath" in settings["teamColourMappings"][gfxState["Team"+team+"Name"]]) {
-                        $("#team"+team+"Logo").css("background-image", 'url(' + settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["logoFilePath"] + ')');
-                        
-                    }
-                }
-                
-            } else {
-                $("#team"+team+"Colour").css("background-color", settings["team"+team]["defaultColour"]);
-                $("#team"+team+"Lead")  .css("color", settings["team"+team]["defaultStarColour"]);
-                if(settings["overlaySettings"]["doColourLogoBackgrounds"]) {
-                    $("#team"+team+"Logo").css("background-color", settings["team"+team]["defaultColour"]);
-                }
-                if (settings["overlaySettings"]["showTeamLogos"]) {
-                    $("#team" + team + "Logo").css("background-image", 'url(' + settings["team"+team]["defaultLogo"] + ')');
-                }
-            }
             $("#team"+team+"Logo").fadeOut(100);
             $("#team"+team+"Colour").fadeOut(100);
             $("#team"+team+"Name").hide(100);
-            $("#team"+team+"Score").hide(100);
-            setTimeout(function() {
-                $("#team"+team+"Name").show(200);
-                $("#team"+team+"Score").show(200);
-                $("#team"+team+"Colour").fadeIn(200);
-                $("#team" + team + "Logo").fadeIn(200);
-            }, 100);
+            $("#team"+team+"Score").hide(100,
+                function () {
+                    // Fetch name
+                    if (settings["team"+team]["getTeamNameFromScoreboard"]){
+                        if (name in settings["teamShortNames"]) {
+                            gfxState["Team"+team+"Name"]       = settings["teamShortNames"][name]["short"].substr(0,settings["overlaySettings"]["shortTeamNameMaxLength"]).toUpperCase();
+                            gfxState["Team"+team+"NameShort"]  = settings["teamShortNames"][name]["superShort"].substr(0,settings["overlaySettings"]["superShortTeamNameMaxLength"]).toUpperCase();
+                        } else {
+                            gfxState["Team"+team+"Name"]       = name.substr(0,settings["overlaySettings"]["shortTeamNameMaxLength"]).toUpperCase();
+                            gfxState["Team"+team+"NameShort"]  = name.substr(0,settings["overlaySettings"]["superShortTeamNameMaxLength"]).toUpperCase();
+                        }
+                    } else {
+                        gfxState["Team"+team+"Name"]       = settings["team"+team]["defaultName"].toUpperCase();
+                        gfxState["Team"+team+"NameShort"]  = settings["team"+team]["defaultName"].substr(0,5).toUpperCase();
+                    }
+                    $("#team"+team+"Name").html(gfxState["Team"+team+"NameShort"]);
+                                
+                    // Set colour and logo
+                    if (settings["overlaySettings"]["autoLoadTeamColoursBasedOnTeamName"] && gfxState["Team"+team+"Name"] in settings["teamColourMappings"]) {
+                        $("#team"+team+"Colour").css("background-color", settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["teamColour"]);
+                        $("#team"+team+"Lead")  .css("color", settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["starColour"]);
+                        if(settings["overlaySettings"]["doColourLogoBackgrounds"]) {
+                            $("#team"+team+"Logo").css("background-color", settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["teamColour"]);
+                        }
+                        
+                        if (settings["overlaySettings"]["showTeamLogos"]) {
+                            if ("logoFilePath" in settings["teamColourMappings"][gfxState["Team"+team+"Name"]]) {
+                                $("#team"+team+"Logo").css("background-image", 'url(' + settings["teamColourMappings"][gfxState["Team"+team+"Name"]]["logoFilePath"] + ')');
+                                
+                            }
+                        }
+                        
+                    } else {
+                        $("#team"+team+"Colour").css("background-color", settings["team"+team]["defaultColour"]);
+                        $("#team"+team+"Lead")  .css("color", settings["team"+team]["defaultStarColour"]);
+                        if(settings["overlaySettings"]["doColourLogoBackgrounds"]) {
+                            $("#team"+team+"Logo").css("background-color", settings["team"+team]["defaultColour"]);
+                        }
+                        if (settings["overlaySettings"]["showTeamLogos"]) {
+                            $("#team" + team + "Logo").css("background-image", 'url(' + settings["team"+team]["defaultLogo"] + ')');
+                        }
+                    }
+                    setTimeout(function() {
+                        $("#team"+team+"Name").show(200);
+                        $("#team"+team+"Score").show(200);
+                        $("#team"+team+"Colour").fadeIn(200);
+                        $("#team" + team + "Logo").fadeIn(200);
+                    }, 50);    
+                });        
+        } // function gfxSetTeamNameColourLogo(team, name)
         
-        }
                         
         function gfxBuildSponsorContent() {
             var tbl = document.createElement("table");
