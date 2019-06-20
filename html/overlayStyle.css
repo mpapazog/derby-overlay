@@ -3,7 +3,7 @@
 /* MAIN OVERLAY CLASSES START HERE */
 
     .chroma-key {
-        background-color: transparent;
+        background-color: gray;
     }
     
     .font_style {
@@ -16,7 +16,7 @@
     }
     
     .font-colour-default{
-        color: #2c2c2c;    
+        color: #4c4c4c;    
     }    
     
     .bgcolour-clockface-static {
@@ -42,69 +42,86 @@
     .colour-scheme-popup2 {
         background-image: linear-gradient(#75705f, white);
     }
-        
-    .team_panel {
-        width:  324px;
+            
+    .team_container_dimensions {
+        width:  338px;
         height: 60px;
-        line-height: 60px;
-        position: inherit;
     }
         
-    .team1_panel_position {
+    .team1_container_position {
       position: absolute;
       top: 60px;
       left: 60px;
     }
     
-    .team2_panel_position {
+    .team2_container_position {
       position: absolute;
       top: 120px;
       left: 60px;
     }
     
+    .team_panel_dimensions {
+        width: 100%;
+        height: 0px; /* set to 100% with Javascript*/
+        line-height: 60px;
+        text-align: center;
+    }
+    
+    .team1_panel_align {
+        position: inherit;
+        bottom: 0px;
+    }
+    
+    .team2_panel_align {
+        position: inherit;
+        top: 0px;
+        
+    }
+    
     .team_logo {
       width: 60px;
-      height: 60px;
+      height: 100%;
       position: inherit;
       background-size: 100% 100%;
     }
     
     .team_colour {
       width: 24px;
-      height: 60px;
+      height: 100%;
       position: inherit;
       left: 60px;
     }
     
     .team_vertical_line {
       width: 4px;
-      height: 60px;
+      height: 100%;
       position: inherit;
       left: 84px;
     }
         
     .team_name {
       width: 130px;
-      height: 60px;
+      height: 100%;
       position: inherit;
       left: 88px;
       font-size: 42px;
-      text-align: center;
     }
-    
+        
     .team_score {
-      width: 120px;
-      height: 60px;
+      width: 0px; /* Dynamically set to 120px using Javascript */
+      height: 100%;
       position: inherit;
-      left: 218px;
+      right: 0px;
       font-size: 52px;
       text-align: center;
     }
     
+        
     .team_lead {
         position: inherit;
         left: 62px;
         top: 0px;
+        height: 100%;
         font-size: 24px;
         font-family: "Arial", Sans-serif;
         text-shadow: 2px 2px grey;
@@ -133,28 +150,48 @@
     }
     
     .clock_panel {
-        width:  180px;
+        width:  0px; /* DEV set to 180px using javascript */
         height: 60px;
         line-height: 60px;
     }
     
+    .jam_panel {
+        width:  0px; /* DEV set to 180px using javascript */
+        height: 60px;
+        line-height: 60px;
+    }
+    
+    .period_panel {
+        width:  180px; 
+        height: 0px; /* DEV set to 60px using javascript */
+        line-height: 60px;
+    }
+    
     .period_panel_position {
-      position: absolute;
-      top: 60px;
-      right: 60px;
+      position: inherit;
+      bottom: 60px;
+      right: 0px;
     }
     
     .jam_panel_position {
-      position: absolute;
-      top: 120px;
-      right: 60px;
+      position: inherit;
+      bottom: 0px;
+      right: 0px;
+    }
+    
+    .clocks_container {
+        position: absolute;
+        width:  180px;
+        height: 120px;
+        top:    60px;
+        right:  60px;
     }
     
     .clock_face {
-        width: 100px;
-        height:60px;
-        right: 0px;
         position: inherit;
+        width: 100px; /* DEV set to 100px using javascript */
+        height:100%;
+        left: 80px;
         font-size: 32px;
         text-align: center;
     }
@@ -162,8 +199,19 @@
     .clock_label {
         width: 80px;
         position: inherit;
-        right: 100px;
+        left: 0px;
         font-size: 32px;
+        text-align: center;
+    }
+    
+    .intermission_clock {
+        position:   absolute;
+        top:        120px;
+        right:      60px;
+        width:      180px;
+        height:     60px;
+        line-height:60px;
+        font-size:  32px;
         text-align: center;
     }
         
@@ -356,26 +404,26 @@
     
     .scoreonly_team_1 {
         position:absolute;
-        top: 350px;
-        left:460px;
+        top: 780px;
+        left:000px;
         width: 960px;
-        text-align:left;
+        text-align:right;
         
     }
     
     .scoreonly_team_2 {
         position:absolute;
-        top: 540px;
-        right: 460px;
+        top: 780px;
+        right: 000px;
         width: 960px;
-        text-align:right;
+        text-align:left;
         
     }
     
     .scoreonly_team_name {
         font-size: 52px;    
         display:inline-block; 
-        width:480px;
+        width:380px;
             
     }
         
@@ -403,7 +451,7 @@
     .clockonly_clock_container {
         width: 100%;
         position: absolute;
-        top: 45px;
+        top: 840px;
         left:0px;
         text-align:center;
         display:inline-block;        
@@ -423,7 +471,7 @@
     .hype_nextgame_container {
         width: 100%;
         position: absolute;
-        top: 0px;
+        top: 800px;
         left:0px;
         text-align:center;
         display:inline-block;        

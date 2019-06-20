@@ -20,6 +20,8 @@
         // TODO: Remove rest of graphics functions out of websocket state machine code?
         // TODO: Detect official timeout if changed from official review? Seems to be a CRG bug. Nothing I can do?
         // TODO: Bug: Chance to show Halftime banner when SBO resets game in Official score. Maybe fixed. Test fix. See improvement notes int gfxState comments
+        // TODO: Add entrance animation for score panel
+        // TODO: Fix recovery from halftime clocks animation
         
         // DO NOT MODIFY THESE VARIABLES. To change script behaviour modify overlaySettings.json instead
         var settings    = {},
@@ -79,14 +81,23 @@
             },
                         
             gfxState = {
+                "ShowingPeriodClockPanel"       : false,
+                "ShowingJamClockFace"           : false,
+                "EntranceAnimationsComplete"    : false,
                 "PreviousPopupText"             : "none",
                 "SignalGameReset"               : false,
                 "JamJustEnded"                  : false,
                 "ClearToShowJamPoints"          : false,
                 "ClearToShowJammerInfo"         : false,
                 "ShowingJamScore"               : false,
+                "ShowingTeam1Name"              : false,
+                "ShowingTeam2Name"              : false,
+                "SignalSetTeam1Name"            : false,
+                "SignalSetTeam2Name"            : false,
+                "Team1NameRaw"                  : "",
                 "Team1Name"                     : "",
                 "Team1NameShort"                : "",
+                "Team2NameRaw"                  : "",
                 "Team2Name"                     : "",
                 "Team2NameShort"                : "",
                 "IntermissionClockUpdated"      : false,
@@ -484,7 +495,8 @@
                                                 
                                             break;
                                         case "ScoreBoardTeamName":
-                                            gfxSetTeamNameColourLogo(parsedUpdate["Team"], value);
+                                            gfxState["Team" + parsedUpdate["Team"] + "NameRaw"] = value;
+                                            gfxState["SignalSetTeam" + parsedUpdate["Team"] + "Name"] = true;
                                             break;
                                         
                                     }
@@ -664,9 +676,19 @@
                     $("#team" + team + "Logo").css("background-image", 'url(' + settings["team"+team]["defaultLogo"] + ')');
                 }
             }
+            $("#team"+team+"Logo").fadeOut(100);
+            $("#team"+team+"Colour").fadeOut(100);
+            $("#team"+team+"Name").hide(100);
+            $("#team"+team+"Score").hide(100);
+            setTimeout(function() {
+                $("#team"+team+"Name").show(200);
+                $("#team"+team+"Score").show(200);
+                $("#team"+team+"Colour").fadeIn(200);
+                $("#team" + team + "Logo").fadeIn(200);
+            }, 100);
         
         }
-                
+                        
         function gfxBuildSponsorContent() {
             var tbl = document.createElement("table");
             tbl.style.display = "inline-block";
@@ -698,256 +720,347 @@
             $("#timeoutBannerShard4").removeClass("timeout_banner_shard_4").addClass("timeout_banner_shard_4_nosponsor");
             $("#timeoutTextContainer").removeClass("timeout_text_container").addClass("timeout_text_container_nosponsor");
         }
+        
+        
+        function gfxShowPeriodPanel() {
+            $("#periodPanel").animate({height: "60px"}, 200);
+            gfxState["ShowingPeriodClockPanel"] = true;
+        }
+        
+        function gfxHidePeriodJamClock() {
+            $("#periodClock").hide(100);
+            $("#jamNumber").hide(100);
+            $("#periodNumber").hide(100);
+            $("#jamClock").hide(100);
+            setTimeout( function () {
+                $("#periodPanel").animate({height: "0px"}, 100,
+                    function () {
+                        $("#jamClockContainer").animate({width: "0px"}, 100);
+                        $("#intermissionClock").show();
+                        gfxState["ShowingPeriodClockPanel"] = false;
+                        gfxState["ShowingJamClockFace"] = false;
+                    });
+            }, 100);
+            
+        }
+        
+        function gfxShowPeriodClock() {
+            $("#intermissionClock").hide(100);
+            setTimeout( function () {
+                $("#intermissionClock").text("");
+                gfxState["ShowingJamClockFace"] = true;
+                $("#jamClockContainer").animate({width: "100px"}, 200,
+                    function(){
+                        gfxState["ShowingPeriodClockPanel"] = true;
+                        $("#periodPanel").animate({height: "60px"}, 200,
+                            function(){
+                                $("#periodClock").text(state["PeriodClockTimeFormatted"]);
+                                $("#jamNumber").text("J" + state["JamNumber"]);
+                                $("#periodNumber").text("P" + state["PeriodNumber"]);
+                                $("#jamClock").text("0:00");
+                                $("#jamNumber").show(200);
+                                $("#periodNumber").show(200);
+                                setTimeout( function () {
+                                    $("#jamClock").show(200);
+                                    $("#periodClock").show(200);
+                                }, 20);
 
+                            });
+                    });
+                }, 100);
+        }
 
+        function gfxShowJamPanel() {
+            $("#jamPanel").animate({width: "180px"}, 200);
+        }
+        
+        function gfxShowScorePanel() {
+            $("#team1Panel").animate({height: "100%"}, 200);
+            $("#team2Panel").animate({height: "100%"}, 200, function() {
+                $("#team1Score").animate({width: "120px"}, 200);
+                $("#team2Score").animate({width: "120px"}, 200);
+                $("#team1ScoreBack").animate({width: "120px"}, 200);
+                $("#team2ScoreBack").animate({width: "120px"}, 200);
+            });
+        }
 
                       
         // CLOCKS AND GRAPHICS LOOP. RUNS EVERY 1000ms
         setInterval(function() {
         
-            // first handle clock faces only, to reduce rendering lag and clock jitter
-            
-            if (gfxState["PeriodClockUpdated"]) {
-                $("#periodClock").text(state["PeriodClockTimeFormatted"]);
-                gfxState["PeriodClockUpdated"] = false;
-            }
-            
-            if (state["JamClockRunning"]) {
-                $("#jamClock").text(state["JamClockTimeFormatted"]);
-                gfxState["JamClockUpdated"] = false;
-            } else if (state["LineupClockRunning"]) {
-                $("#jamClock").text(state["LineupClockTimeFormatted"]);
-                gfxState["LineupClockUpdated"] = false;
-            } else if (state["TimeoutClockRunning"]) {
-                $("#jamClock").text(state["TimeoutClockTimeFormatted"]);
-                gfxState["TimeoutClockUpdated"] = false;
-            } else if (state["IntermissionClockRunning"] && !state["ScoreIsUnofficialFinal"] && !state["ScoreIsOfficialFinal"] ) {
-                $("#jamClock").text(state["IntermissionClockTimeFormatted"]);
-                gfxState["IntermissionClockUpdated"] = false;
-            } else if ($("#jamClock").text() != "0:00") {
-                // prevent jam clock from being stuck at "0:01"
-                $("#jamClock").text("0:00");
-            }
-            
-            
-            // handle the rest of the info tiles
-            
-            if (gfxState["JamNumberUpdated"]) {
-                $("#jamNumber").text("J" + state["JamNumber"]);
-                gfxState["JamNumberUpdated"] = false;
-            }
-            if (gfxState["PeriodNumberUpdated"]) {
-                $("#periodNumber").text("P" + state["PeriodNumber"]);
-                gfxState["PeriodNumberUpdated"] = false;
-            }
-            
-            if (gfxState["Team1ScoreUpdated"]) {
-                $("#team1Score").text(state["Team1Score"]);
-                gfxState["Team1ScoreUpdated"] = false;
-            }
-            if (gfxState["Team2ScoreUpdated"]) {
-                $("#team2Score").text(state["Team2Score"]);
-                gfxState["Team2ScoreUpdated"] = false;
-            }
-            
-            if (state["Team1IsLead"]) {
-                gfxTeamLeadPulsate(1);
-                gfxState["ShowingTeam1Lead"] = true;
-            } else {
-                if(gfxState["ShowingTeam1Lead"]) {
-                    $("#team1Lead").hide();
-                    gfxState["ShowingTeam1Lead"] = false;
-                }
-            }
-            if (state["Team2IsLead"]) {
-                gfxTeamLeadPulsate(2);
-                gfxState["ShowingTeam2Lead"] = true;
-            } else {
-                if(gfxState["ShowingTeam2Lead"]) {
-                    $("#team2Lead").hide();
-                    gfxState["ShowingTeam2Lead"] = false;
-                }
-            }        
-
-             
-            // handle clock popup animations
-            
-            if (gfxState["SignalGameReset"]) { 
-                gfxState["SignalGameReset"] = false;
-                gfxState["LastClockEnabled"] = "Intermission";
-                gfxState["PreviousPopupText"] = "none";
-                if (gfxState["ShowinglineUpPopUp"]) {
-                    gfxState["ShowinglineUpPopUp"] = false;
-                    gfxPopupClose("lineUpPopUp");
-                }
-            } else if (gfxState["ClockRunStateUpdated"]) {
-                gfxState["ClockRunStateUpdated"] = false;
-                var clock = gfxState["LastClockEnabled"];
-                if (clock == "Jam") {
-                    if  (gfxState["ShowinglineUpPopUp"]) {
-                        gfxState["ShowinglineUpPopUp"] = false;
-                        gfxState["PreviousPopupText"] = "none";
-                        gfxPopupClose("lineUpPopUp");
+            if (gfxState["EntranceAnimationsComplete"]) {
+        
+                // first handle clock faces only, to reduce rendering lag and clock jitter
+                
+                if (state["IntermissionClockRunning"] && !state["ScoreIsUnofficialFinal"] && !state["ScoreIsOfficialFinal"] ) {
+                    if (gfxState["ShowingPeriodClockPanel"]) {
+                        gfxHidePeriodJamClock();
+                        setTimeout( function() {
+                            $("#intermissionClock").text(state["IntermissionClockTimeFormatted"]);
+                        }, 200);
+                    } else {
+                        $("#intermissionClock").text(state["IntermissionClockTimeFormatted"]);
                     }
+                    gfxState["IntermissionClockUpdated"] = false;
                 } else {
-                    var popupText = clocksList[clock]["PopupLabel"];
-                    if (clock == "Intermission" && state["JamNumber"] == 0) {
-                        popupText = "STAND BY";
-                    }
-                    if (!(clock == "Intermission" && state["PeriodNumber"] == 2)) {
-                        if (gfxState["ShowinglineUpPopUp"]) {
-                            if (gfxState["PreviousPopupText"] != popupText) {
-                                gfxState["PreviousPopupText"] = popupText;
-                                gfxReplaceText ("lineUpPopUpText", popupText);
-                            }
-                        } else {
-                            gfxState["PreviousPopupText"] = popupText;
-                            gfxPopupOpen ("lineUpPopUp", popupText);
-                            gfxState["ShowinglineUpPopUp"];
+                    if (gfxState["ShowingPeriodClockPanel"]) {
+                        if (gfxState["PeriodClockUpdated"]) {
+                            $("#periodClock").text(state["PeriodClockTimeFormatted"]);
+                            gfxState["PeriodClockUpdated"] = false;
                         }
-                    }
-                }
-            }
-            
-            
-            // handle banners
-            
-            if (gfxState["BannerStateUpdated"]) {
-                gfxState["BannerStateUpdated"] = false;
-                if ( (! (state["TimeoutClockRunning"] || 
-                        (state["IntermissionClockRunning"] && (settings["overlaySettings"]["gameHasHalftimeBanners"] || 
-                        state["ScoreIsOfficialFinal"] || 
-                        state["ScoreIsUnofficialFinal"] ) ) ) )                      
-                     || (state["JamNumber"] == 0) ) { // NOTE: check for 'state["JamNumber"] == 0' to prevent eroneously showing halftime banner in some far-fecthed scenario, if SBO resets scoreboard when final score is showing. Possible fix. Monitor situation. May need to apply animation delay, if this does not work
-                     
-                    if (gfxState["ShowingBanner"]) {
-                        gfxBannerClose ();
-                        gfxState["ShowingBanner"] = false;
-                    }
-                } else {
-                    var bannerText = "TIMEOUT";
-                    if (state["IntermissionClockRunning"]) {
-                        if (state["ScoreIsOfficialFinal"]) {
-                            bannerText = "FINAL SCORE";
-                        } else if (state["ScoreIsUnofficialFinal"]) {
-                            bannerText = "UNOFFICIAL FINAL SCORE";
-                        } else {
-                            bannerText = "HALFTIME";
+                        
+                        if (state["JamClockRunning"]) {
+                            $("#jamClock").text(state["JamClockTimeFormatted"]);
+                            gfxState["JamClockUpdated"] = false;
+                        } else if (state["LineupClockRunning"]) {
+                            $("#jamClock").text(state["LineupClockTimeFormatted"]);
+                            gfxState["LineupClockUpdated"] = false;
+                        } else if (state["TimeoutClockRunning"]) {
+                            $("#jamClock").text(state["TimeoutClockTimeFormatted"]);
+                            gfxState["TimeoutClockUpdated"] = false;
+                        } else  if ($("#jamClock").text() != "0:00") {
+                            // prevent jam clock from being stuck at "0:01"
+                            $("#jamClock").text("0:00");
+                        }
+                                                
+                        if (gfxState["JamNumberUpdated"]) {
+                            $("#jamNumber").text("J" + state["JamNumber"]);
+                            gfxState["JamNumberUpdated"] = false;
+                        }
+                        if (gfxState["PeriodNumberUpdated"]) {
+                            $("#periodNumber").text("P" + state["PeriodNumber"]);
+                            gfxState["PeriodNumberUpdated"] = false;
                         }
                     } else {
-                        if (state["Team1InOfficialReview"]) {
-                            bannerText = "OFFICIAL REVIEW FOR " + gfxState["Team1Name"];
-                        } else if (state["Team2InOfficialReview"]) {
-                            bannerText = "OFFICIAL REVIEW FOR " + gfxState["Team2Name"];
-                        } else if (state["Team1InTimeout"]) {
-                            var numOfThisTimeout = 3 - state["Team1TimeoutsRemaining"];
-                            bannerText = "TEAM TIMEOUT " + numOfThisTimeout + "/3 FOR " + gfxState["Team1Name"];
-                        } else if (state["Team2InTimeout"]) {
-                            var numOfThisTimeout = 3 - state["Team2TimeoutsRemaining"];
-                            bannerText = "TEAM TIMEOUT " + numOfThisTimeout + "/3 FOR " + gfxState["Team2Name"];
-                        }
+                        gfxShowPeriodClock();
                     }
-                    if (gfxState["ShowingBanner"]) {
-                        gfxReplaceText ("timeoutBannerText", bannerText); 
-                    } else if (state["JamNumber"] != 0) {
-                        gfxBannerOpen (bannerText);
-                        gfxState["ShowingBanner"] = true;
-                    }
-                }
-            }
-            
-            // handle jam point display. oh, and close jammer popups, if any
-            
-            if(gfxState["JamJustEnded"]) {
-                gfxState["JamJustEnded"] = false;
-                setTimeout(function(){  
-                    gfxState["Team1JamScoreUpdated"] = false; 
-                    gfxState["Team2JamScoreUpdated"] = false;                     
-                    gfxReplaceText ("team1Score", "+" + state["Team1JamScore"]); 
-                    gfxReplaceText ("team2Score", "+" + state["Team2JamScore"]);
-                    gfxState["ShowingJamScore"] = true;
-                }, 5000);
-                setTimeout(function(){ 
-                    gfxState["ShowingJamScore"] = false;
-                    gfxReplaceText ("team1Score", state["Team1Score"]); 
-                    gfxReplaceText ("team2Score", state["Team2Score"]); 
-                }, 13000);
                 
-                // while you 're at it, close all jammer popups, if any are open
-                if(gfxState["Showingteam1InfoPopUp"]) {
-                    clearTimeout(gfxState["Team1JammerCloseTimer"]);
-                    gfxState["SignalCloseTeam1Popup"] = true;
-                }
-                if(gfxState["Showingteam2InfoPopUp"]) {
-                    clearTimeout(gfxState["Team2JammerCloseTimer"]);
-                    gfxState["SignalCloseTeam2Popup"] = true;
                 }
                 
-            } else if (gfxState["ShowingJamScore"]) {
-                if( gfxState["Team1JamScoreUpdated"]) {
-                    gfxState["Team1JamScoreUpdated"] = false; 
-                    $("#team1Score").text("+" + state["Team1JamScore"]);
+                
+                
+                
+                // handle the rest of the info tiles
+                
+                
+                if (gfxState["Team1ScoreUpdated"]) {
+                    $("#team1Score").text(state["Team1Score"]);
+                    gfxState["Team1ScoreUpdated"] = false;
                 }
-                if( gfxState["Team2JamScoreUpdated"]) {
-                    gfxState["Team2JamScoreUpdated"] = false; 
-                    $("#team2Score").text("+" + state["Team2JamScore"]);
+                if (gfxState["Team2ScoreUpdated"]) {
+                    $("#team2Score").text(state["Team2Score"]);
+                    gfxState["Team2ScoreUpdated"] = false;
                 }
-            }
-            
-            
-            // handle jammer info popups
-            // "let" is used to avoid i (team number) being 3 by the time setTimeout calls execute
-            
-            for (let i=1; i<3; i++) {
-                if (gfxState["SignalCloseTeam"+i+"Popup"]) {
-                    gfxState["SignalCloseTeam"+i+"Popup"] = false;
-                    if (gfxState["Showingteam"+i+"InfoPopUp"]) {
-                        gfxState["Showingteam"+i+"InfoPopUp"] = false;
-                        gfxPopupClose("team"+i+"InfoPopUp");
-                    }
+                
+                if (state["Team1IsLead"]) {
+                    gfxTeamLeadPulsate(1);
+                    gfxState["ShowingTeam1Lead"] = true;
                 } else {
-                    if (gfxState["Team"+i+"JammerInfoUpdated"] && state["JamClockRunning"]) {
-                        gfxState["Team"+i+"JammerInfoUpdated"] = false;
-                        
-                        if(gfxState["ClearToShowJammerInfo"]){
-                            var jammerTextDelay = 100; //msec
-                            
-                            if (state["Team"+i+"StarPass"]) {
-                                if (gfxState["Showingteam"+i+"InfoPopUp"]) {
-                                    clearTimeout(gfxState["Team"+i+"JammerCloseTimer"]);
-                                    gfxReplaceText ("team"+i+"InfoPopUpText", "STAR PASS");
-                                } else {
-                                    // show star pass animation from scratch
-                                    gfxPopupOpen ("team"+i+"InfoPopUp", "STAR PASS");
-                                    gfxState["Showingteam"+i+"InfoPopUp"] = true;
-                                } 
-                                jammerTextDelay = 2000;
-                            }
-                            
-                            gfxState["Team"+i+"JammerTextTimer"] = setTimeout(function(){
-                                if (gfxState["Team"+i+"ActingJammerGotNameNumber"]) {
-                                    var jammerNameNumber = state["Team"+i+"ActingJammerNumber"] + " " + state["Team"+i+"ActingJammerName"];
-                                    if (jammerNameNumber.length > settings["overlaySettings"]["skaterNameNumberMaxLength"]) {
-                                        jammerNameNumber = jammerNameNumber.substr(0, settings["overlaySettings"]["skaterNameNumberMaxLength"]) + ".";
-                                    }
-                                    if (gfxState["Showingteam"+i+"InfoPopUp"]) {
-                                        gfxReplaceText ("team"+i+"InfoPopUpText", jammerNameNumber);
-                                    } else if (state["JamClockRunning"]) {
-                                        gfxPopupOpen ("team"+i+"InfoPopUp", jammerNameNumber);
-                                        gfxState["Showingteam"+i+"InfoPopUp"] = true;
-                                    }
-                                
+                    if(gfxState["ShowingTeam1Lead"]) {
+                        $("#team1Lead").hide();
+                        gfxState["ShowingTeam1Lead"] = false;
+                    }
+                }
+                if (state["Team2IsLead"]) {
+                    gfxTeamLeadPulsate(2);
+                    gfxState["ShowingTeam2Lead"] = true;
+                } else {
+                    if(gfxState["ShowingTeam2Lead"]) {
+                        $("#team2Lead").hide();
+                        gfxState["ShowingTeam2Lead"] = false;
+                    }
+                }        
+
+                 
+                // handle clock popup animations
+                
+                if (gfxState["SignalGameReset"]) { 
+                    gfxState["SignalGameReset"] = false;
+                    gfxState["LastClockEnabled"] = "Intermission";
+                    gfxState["PreviousPopupText"] = "none";
+                    if (gfxState["ShowinglineUpPopUp"]) {
+                        gfxState["ShowinglineUpPopUp"] = false;
+                        gfxPopupClose("lineUpPopUp");
+                    }
+                } else if (gfxState["ClockRunStateUpdated"]) {
+                    gfxState["ClockRunStateUpdated"] = false;
+                    var clock = gfxState["LastClockEnabled"];
+                    if (clock == "Jam") {
+                        if  (gfxState["ShowinglineUpPopUp"]) {
+                            gfxState["ShowinglineUpPopUp"] = false;
+                            gfxState["PreviousPopupText"] = "none";
+                            gfxPopupClose("lineUpPopUp");
+                        }
+                    } else {
+                        var popupText = clocksList[clock]["PopupLabel"];
+                        if (clock == "Intermission" && state["JamNumber"] == 0) {
+                            popupText = "STAND BY";
+                        }
+                        if (!(clock == "Intermission" && state["PeriodNumber"] == 2)) {
+                            if (gfxState["ShowinglineUpPopUp"]) {
+                                if (gfxState["PreviousPopupText"] != popupText) {
+                                    gfxState["PreviousPopupText"] = popupText;
+                                    gfxReplaceText ("lineUpPopUpText", popupText);
                                 }
-                            }, jammerTextDelay);
-                                    
-                            gfxState["Team"+i+"JammerCloseTimer"] = setTimeout(function(){  
-                                gfxState["SignalCloseTeam"+i+"Popup"] = true;
-                            }, 14000);
+                            } else {
+                                gfxState["PreviousPopupText"] = popupText;
+                                gfxPopupOpen ("lineUpPopUp", popupText);
+                                gfxState["ShowinglineUpPopUp"];
+                            }
                         }
                     }
-                } // else
-            } // for
-            
+                }
+                
+                
+                // handle banners
+                
+                if (gfxState["BannerStateUpdated"]) {
+                    gfxState["BannerStateUpdated"] = false;
+                    if ( (! (state["TimeoutClockRunning"] || 
+                            (state["IntermissionClockRunning"] && (settings["overlaySettings"]["gameHasHalftimeBanners"] || 
+                            state["ScoreIsOfficialFinal"] || 
+                            state["ScoreIsUnofficialFinal"] ) ) ) )                      
+                         || (state["JamNumber"] == 0) ) { // NOTE: check for 'state["JamNumber"] == 0' to prevent eroneously showing halftime banner in some far-fecthed scenario, if SBO resets scoreboard when final score is showing. Possible fix. Monitor situation. May need to apply animation delay, if this does not work
+                         
+                        if (gfxState["ShowingBanner"]) {
+                            gfxBannerClose ();
+                            gfxState["ShowingBanner"] = false;
+                        }
+                    } else {
+                        var bannerText = "TIMEOUT";
+                        if (state["IntermissionClockRunning"]) {
+                            if (state["ScoreIsOfficialFinal"]) {
+                                bannerText = "FINAL SCORE";
+                            } else if (state["ScoreIsUnofficialFinal"]) {
+                                bannerText = "UNOFFICIAL FINAL SCORE";
+                            } else {
+                                bannerText = "HALFTIME";
+                            }
+                        } else {
+                            if (state["Team1InOfficialReview"]) {
+                                bannerText = "OFFICIAL REVIEW FOR " + gfxState["Team1Name"];
+                            } else if (state["Team2InOfficialReview"]) {
+                                bannerText = "OFFICIAL REVIEW FOR " + gfxState["Team2Name"];
+                            } else if (state["Team1InTimeout"]) {
+                                var numOfThisTimeout = 3 - state["Team1TimeoutsRemaining"];
+                                bannerText = "TEAM TIMEOUT " + numOfThisTimeout + "/3 FOR " + gfxState["Team1Name"];
+                            } else if (state["Team2InTimeout"]) {
+                                var numOfThisTimeout = 3 - state["Team2TimeoutsRemaining"];
+                                bannerText = "TEAM TIMEOUT " + numOfThisTimeout + "/3 FOR " + gfxState["Team2Name"];
+                            }
+                        }
+                        if (gfxState["ShowingBanner"]) {
+                            gfxReplaceText ("timeoutBannerText", bannerText); 
+                        } else if (state["JamNumber"] != 0) {
+                            gfxBannerOpen (bannerText);
+                            gfxState["ShowingBanner"] = true;
+                        }
+                    }
+                }
+                
+                // handle jam point display. oh, and close jammer popups, if any
+                
+                if(gfxState["JamJustEnded"]) {
+                    gfxState["JamJustEnded"] = false;
+                    setTimeout(function(){  
+                        gfxState["Team1JamScoreUpdated"] = false; 
+                        gfxState["Team2JamScoreUpdated"] = false;                     
+                        gfxReplaceText ("team1Score", "+" + state["Team1JamScore"]); 
+                        gfxReplaceText ("team2Score", "+" + state["Team2JamScore"]);
+                        gfxState["ShowingJamScore"] = true;
+                    }, 5000);
+                    setTimeout(function(){ 
+                        gfxState["ShowingJamScore"] = false;
+                        gfxReplaceText ("team1Score", state["Team1Score"]); 
+                        gfxReplaceText ("team2Score", state["Team2Score"]); 
+                    }, 13000);
+                    
+                    // while you 're at it, close all jammer popups, if any are open
+                    if(gfxState["Showingteam1InfoPopUp"]) {
+                        clearTimeout(gfxState["Team1JammerCloseTimer"]);
+                        gfxState["SignalCloseTeam1Popup"] = true;
+                    }
+                    if(gfxState["Showingteam2InfoPopUp"]) {
+                        clearTimeout(gfxState["Team2JammerCloseTimer"]);
+                        gfxState["SignalCloseTeam2Popup"] = true;
+                    }
+                    
+                } else if (gfxState["ShowingJamScore"]) {
+                    if( gfxState["Team1JamScoreUpdated"]) {
+                        gfxState["Team1JamScoreUpdated"] = false; 
+                        $("#team1Score").text("+" + state["Team1JamScore"]);
+                    }
+                    if( gfxState["Team2JamScoreUpdated"]) {
+                        gfxState["Team2JamScoreUpdated"] = false; 
+                        $("#team2Score").text("+" + state["Team2JamScore"]);
+                    }
+                }
+                
+                
+                // handle jammer info popups
+                // "let" is used to avoid i (team number) being 3 by the time setTimeout calls execute
+                
+                for (let i=1; i<3; i++) {
+                    if (gfxState["SignalCloseTeam"+i+"Popup"]) {
+                        gfxState["SignalCloseTeam"+i+"Popup"] = false;
+                        if (gfxState["Showingteam"+i+"InfoPopUp"]) {
+                            gfxState["Showingteam"+i+"InfoPopUp"] = false;
+                            gfxPopupClose("team"+i+"InfoPopUp");
+                        }
+                    } else {
+                        if (gfxState["Team"+i+"JammerInfoUpdated"] && state["JamClockRunning"]) {
+                            gfxState["Team"+i+"JammerInfoUpdated"] = false;
+                            
+                            if(gfxState["ClearToShowJammerInfo"]){
+                                var jammerTextDelay = 100; //msec
+                                
+                                if (state["Team"+i+"StarPass"]) {
+                                    if (gfxState["Showingteam"+i+"InfoPopUp"]) {
+                                        clearTimeout(gfxState["Team"+i+"JammerCloseTimer"]);
+                                        gfxReplaceText ("team"+i+"InfoPopUpText", "STAR PASS");
+                                    } else {
+                                        // show star pass animation from scratch
+                                        gfxPopupOpen ("team"+i+"InfoPopUp", "STAR PASS");
+                                        gfxState["Showingteam"+i+"InfoPopUp"] = true;
+                                    } 
+                                    jammerTextDelay = 2000;
+                                }
+                                
+                                gfxState["Team"+i+"JammerTextTimer"] = setTimeout(function(){
+                                    if (gfxState["Team"+i+"ActingJammerGotNameNumber"]) {
+                                        var jammerNameNumber = state["Team"+i+"ActingJammerNumber"] + " " + state["Team"+i+"ActingJammerName"];
+                                        if (jammerNameNumber.length > settings["overlaySettings"]["skaterNameNumberMaxLength"]) {
+                                            jammerNameNumber = jammerNameNumber.substr(0, settings["overlaySettings"]["skaterNameNumberMaxLength"]) + ".";
+                                        }
+                                        if (gfxState["Showingteam"+i+"InfoPopUp"]) {
+                                            gfxReplaceText ("team"+i+"InfoPopUpText", jammerNameNumber);
+                                        } else if (state["JamClockRunning"]) {
+                                            gfxPopupOpen ("team"+i+"InfoPopUp", jammerNameNumber);
+                                            gfxState["Showingteam"+i+"InfoPopUp"] = true;
+                                        }
+                                    
+                                    }
+                                }, jammerTextDelay);
+                                        
+                                gfxState["Team"+i+"JammerCloseTimer"] = setTimeout(function(){  
+                                    gfxState["SignalCloseTeam"+i+"Popup"] = true;
+                                }, 14000);
+                            } // gfxState["ClearToShowJammerInfo"]
+                        }
+                    } // else
+                } // for
+                
+                // handle team name updates
+                
+                for (let i=1; i<3; i++) {
+                    if (gfxState["SignalSetTeam"+i+"Name"]) {
+                        gfxSetTeamNameColourLogo(i, gfxState["Team"+i+"NameRaw"]);
+                        gfxState["SignalSetTeam"+i+"Name"] = false;
+                    }
+                    
+                }
+                
+            } // if gfxState["EntranceAnimationsComplete"]
             
         }, 1000);        
         
@@ -966,7 +1079,20 @@
             $("#lineUpPopUpText").hide();
             $("#timeoutBannerText").hide();
             $("#sponsorBannerText").hide();
-                        
+            $("#jamClockContainer").css('width', '0px');
+            $("#periodClock").hide();
+            $("#jamNumber").hide();
+            $("#periodNumber").hide();
+            $("#jamClock").hide();
+            $("#team1Logo").fadeOut(100);
+            $("#team1Colour").fadeOut(100);
+            $("#team1Name").hide();
+            $("#team1Score").hide();
+            $("#team2Logo").fadeOut(100);
+            $("#team2Colour").fadeOut(100);
+            $("#team2Name").hide();
+            $("#team2Score").hide();
+                                    
             $.getJSON( "/overlaySettings.json", function(settingsData){
                 $.each(settingsData, function (k, v) {
                     if (k != "readMe") {
@@ -982,6 +1108,15 @@
                 
                 // immediately rebuild connection to scoreboard on page load
                 score.initialize();
+                
+                // DEBUG
+                setTimeout( function() {
+                    gfxShowJamPanel();
+                    gfxShowScorePanel();
+                    setTimeout( function() {
+                        gfxState["EntranceAnimationsComplete"] = true;
+                        }, 400);
+                    }, 1000);
                                 
             });
             
@@ -991,49 +1126,61 @@
     
     <div id=everything>
         
-    <div id=team1panel class="team_panel team1_panel_position bgcolour-default">
+        
     
+    <div id=team1PanelContainer class="team_container_dimensions team1_container_position">
         <div id=team1InfoPopUp class="team_info_popup team1_info_popup_position font_style colour-scheme-popup1 font-colour-default">
             <div id=team1InfoPopUpText>
             </div>
         </div>
-        <div id=team1Logo class="team_logo"></div>
-        <div id=team1Colour class="team_colour"></div>
-        <div id=team2VerticalLine class="team_vertical_line bgcolour-clockface-gradient1"></div>
-        <div id=team1Name class="team_name font_style font-colour-default"></div>
-        <div id=team1ScoreBack class="team_score font_style bgcolour-clockface-gradient1"></div>
-        <div id=team1Score class="team_score font_style font-colour-clockface"></div>
-        <div id=team1Lead class="team_lead"></div>
+        
+        <div id=team1Panel class="team_panel_dimensions team1_panel_align bgcolour-default">
+            <div id=team1Logo class="team_logo"></div>
+            <div id=team1Colour class="team_colour"></div>
+            <div id=team2VerticalLine class="team_vertical_line bgcolour-clockface-gradient1"></div>
+            <div id=team1Name class="team_name font_style font-colour-default"></div>
+            <div id=team1ScoreBack class="team_score font_style bgcolour-clockface-gradient1"></div>
+            <div id=team1Score class="team_score font_style font-colour-clockface"></div>
+            <div id=team1Lead class="team_lead"></div>
+        </div>
     </div>
     
-    
-    <div id=team2panel class="team_panel team2_panel_position bgcolour-default">
-        <div id=team2Logo class="team_logo"></div>
-        <div id=team2Colour class="team_colour"></div>
-        <div id=team2VerticalLine class="team_vertical_line bgcolour-clockface-gradient2"></div>
-        <div id=team2Name class="team_name font_style font-colour-default"></div>
-        <div id=team2ScoreBack class="team_score font_style bgcolour-clockface-gradient2"></div>
-        <div id=team2Score class="team_score font_style font-colour-clockface"></div>
-        <div id=team2Lead class="team_lead"></div>
+    <div id=team2PanelContainer class="team_container_dimensions team2_container_position">
+        <div id=team2Panel class="team_panel_dimensions team2_panel_align bgcolour-default">
+            <div id=team2Logo class="team_logo"></div>
+            <div id=team2Colour class="team_colour"></div>
+            <div id=team2VerticalLine class="team_vertical_line bgcolour-clockface-gradient2"></div>
+            <div id=team2Name class="team_name font_style font-colour-default"></div>
+            <div id=team2ScoreBack class="team_score font_style bgcolour-clockface-gradient2"></div>
+            <div id=team2Score class="team_score font_style font-colour-clockface"></div>
+            <div id=team2Lead class="team_lead"></div>
+        </div>
+        
         <div id=team2InfoPopUp class="team_info_popup team2_info_popup_position font_style colour-scheme-popup2 font-colour-default">
             <div id=team2InfoPopUpText>
             </div>
         </div>
     </div>
     
-    <div id=clocksPanel>
-        <div id=periodPanel class="clock_panel period_panel_position bgcolour-default font-colour-default">
-            <div id=periodClock class="period_clock clock_face font_style bgcolour-clockface-gradient1 font-colour-clockface"></div>
-            <div id=periodNumber class="period_number clock_label font_style"></div>
+    
+    <div id=clocksPanel class="clocks_container">
+        <div id=periodPanel class="period_panel period_panel_position bgcolour-default font-colour-default">
+            <div id=periodClockContainer class="clock_face bgcolour-clockface-gradient1">
+                <div id=periodClock class="font_style font-colour-clockface"></div>
+            </div>
+            <div id=periodNumber class="clock_label font_style"></div>
         </div>
-        <div id=jamPanel class="clock_panel jam_panel_position bgcolour-default font-colour-default">
-            <div id=jamClock class="jam_clock clock_face font_style bgcolour-clockface-gradient2 font-colour-clockface"></div>
-            <div id=jamNumber class="jam_number clock_label font_style"></div>
+        <div id=jamPanel class="jam_panel jam_panel_position bgcolour-default font-colour-default">
+            <div id=jamClockContainer class="clock_face bgcolour-clockface-gradient2">
+                <div id=jamClock class="font_style font-colour-clockface"></div>
+            </div>
+            <div id=jamNumber class="clock_label font_style"></div>
             <div id=lineUpPopUp class="lineup_popup font_style colour-scheme-popup2 font-colour-default">
                 <div id=lineUpPopUpText></div>
             </div>
         </div>
     </div>
+    <div id=intermissionClock class="intermission_clock font-colour-default font_style"></div>
     
     
     <div id=centeredstuff class="center">
