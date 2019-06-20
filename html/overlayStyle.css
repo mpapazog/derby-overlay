@@ -3,7 +3,7 @@
 /* MAIN OVERLAY CLASSES START HERE */
 
     .chroma-key {
-        background-color: gray;
+        background-color: transparent;
     }
     
     .font_style {
