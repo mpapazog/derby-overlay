@@ -10,6 +10,12 @@ The overlay has been developed and tested with OBS as the streaming application,
 * Update: The overlay now uses the Roboto font. You can get it from Google: https://fonts.google.com/specimen/Roboto
 * If you stumble into bugs, let me know
 
+## What's new:
+
+version 2.3-ish:
+* Entrance animations for team and clock panels
+* Clock transition animations for intermissions
+* Team name change transition animations
 
 ## Installation and startup:
 
