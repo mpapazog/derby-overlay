@@ -108,12 +108,19 @@
     }
         
     .team_score {
+      width: 100%;
+      height: 100%;
+      position: inherit;
+      left: 0px;
+      font-size: 52px;
+      text-align: center;
+    }
+    
+    .team_score_container {
       width: 0px; /* Dynamically set to 120px using Javascript */
       height: 100%;
       position: inherit;
       right: 0px;
-      font-size: 52px;
-      text-align: center;
     }
     
         

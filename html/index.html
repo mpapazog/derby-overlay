@@ -776,8 +776,8 @@
         function gfxShowScorePanel() {
             $("#team1Panel").animate({height: "100%"}, 200);
             $("#team2Panel").animate({height: "100%"}, 200, function() {
-                $("#team1Score").animate({width: "120px"}, 200);
-                $("#team2Score").animate({width: "120px"}, 200);
+                $("#team1ScoreContainer").animate({width: "120px"}, 200);
+                $("#team2ScoreContainer").animate({width: "120px"}, 200);
                 $("#team1ScoreBack").animate({width: "120px"}, 200);
                 $("#team2ScoreBack").animate({width: "120px"}, 200);
             });
@@ -1138,8 +1138,10 @@
             <div id=team1Colour class="team_colour"></div>
             <div id=team2VerticalLine class="team_vertical_line bgcolour-clockface-gradient1"></div>
             <div id=team1Name class="team_name font_style font-colour-default"></div>
-            <div id=team1ScoreBack class="team_score font_style bgcolour-clockface-gradient1"></div>
-            <div id=team1Score class="team_score font_style font-colour-clockface"></div>
+            <div id=team1ScoreBack class="team_score_container font_style bgcolour-clockface-gradient1"></div>
+            <div id=team1ScoreContainer class="team_score_container">
+                <div id=team1Score class="team_score font_style font-colour-clockface"></div>
+            </div>
             <div id=team1Lead class="team_lead"></div>
         </div>
     </div>
@@ -1150,8 +1152,10 @@
             <div id=team2Colour class="team_colour"></div>
             <div id=team2VerticalLine class="team_vertical_line bgcolour-clockface-gradient2"></div>
             <div id=team2Name class="team_name font_style font-colour-default"></div>
-            <div id=team2ScoreBack class="team_score font_style bgcolour-clockface-gradient2"></div>
-            <div id=team2Score class="team_score font_style font-colour-clockface"></div>
+            <div id=team2ScoreBack class="team_score_container font_style bgcolour-clockface-gradient2"></div>
+            <div id=team2ScoreContainer class="team_score_container">
+                <div id=team2Score class="team_score font_style font-colour-clockface"></div>
+            </div>
             <div id=team2Lead class="team_lead"></div>
         </div>
         
